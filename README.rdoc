@@ -1,12 +1,12 @@
-== Ext.ux.touch.SwipeTabs
+== Ext.ux.touch.AccelerometerTabs
 
-A plugin that lets the user swipe between tabs in a TabPanel. No configuration is needed.
+A plugin that lets the user shake between tabs in a TabPanel. No configuration is needed.
 
 = Sample Usage
 
   {
     xtype: 'tabpanel',
     ...,
-    plugins: [new Ext.ux.touch.SwipeTabs()],
+    plugins: [new Ext.ux.touch.AccelerometerTabs()],
     ...
   }
