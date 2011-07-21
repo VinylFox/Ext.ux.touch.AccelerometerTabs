@@ -1,0 +1,110 @@
+<html>
+	<head>
+		<title>Useless Tweets</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="format-detection" content="address=no"/>
+    <link type="text/css" rel="stylesheet" href="../../../sencha-touch.css">
+    <script type="application/javascript" src="../../../sencha-touch-debug.js"></script>
+    <script type="application/javascript" src="../../src/Ext.ux.touch.AccelerometerTabs.js"></script>
+    <script type="application/javascript">
+    Ext.regApplication({
+        name: 'UselessTweets',
+        defaultTarget: 'viewport',
+        phoneStartupScreen: 'phone_startup.png',
+        icon: 'icon.png',
+        launch: function(){
+            new Ext.TabPanel({
+              fullscreen: true,
+              id: 'viewport',
+              application: this,
+              plugins: [new Ext.ux.touch.AccelerometerTabs({
+                threshold: 8,
+                buffer: 500
+              })],
+              activeItem: 0,
+                items: [{
+                    layout: 'fit',
+                    title: 'Foo Code',
+                    items: [{
+                        xtype: 'list',
+                        itemTpl: '{text}',
+                        store: UselessTweets.stores.Foos
+                    }]
+                },{
+                    layout: 'fit',
+                    title: 'IE Sucks',
+                    items: [{
+                        xtype: 'list',
+                        itemTpl: '{text}',
+                        store: UselessTweets.stores.IEs
+                    }]
+                },{
+                    layout: 'fit',
+                    title: 'Global Var',
+                    items: [{
+                        xtype: 'list',
+                        itemTpl: '{text}',
+                        store: UselessTweets.stores.Vars
+                    }]
+                }]
+            });
+        }
+    });
+    
+    Ext.regModel('Twitter', {
+        fields: ['id','text']
+    });
+    
+    UselessTweets.stores.Foos = new Ext.data.Store({
+        model: 'Twitter',
+        proxy: {
+            type: 'scripttag',
+            url: 'http://search.twitter.com/search.json',
+            extraParams: {
+              q: 'code+foo',
+              filters: []
+            },
+            reader: {
+                root: 'results'
+            }
+        },
+        autoLoad: true
+    });
+    
+    UselessTweets.stores.IEs = new Ext.data.Store({
+        model: 'Twitter',
+        proxy: {
+            type: 'scripttag',
+            url: 'http://search.twitter.com/search.json',
+            extraParams: {
+              q: 'ie+sucks',
+              filters: []
+            },
+            reader: {
+                root: 'results'
+            }
+        },
+        autoLoad: true
+    });
+    
+    UselessTweets.stores.Vars = new Ext.data.Store({
+        model: 'Twitter',
+        proxy: {
+            type: 'scripttag',
+            url: 'http://search.twitter.com/search.json',
+            extraParams: {
+              q: 'global+var',
+              filters: []
+            },
+            reader: {
+                root: 'results'
+            }
+        },
+        autoLoad: true
+    });
+    </script>
+	</head>
+	<body>
+	</body>
+</html>

@@ -14,11 +14,26 @@ Ext.ns('Ext.ux.touch');
  * </code></pre>
  */
 Ext.ux.touch.AccelerometerTabs = Ext.extend(Ext.util.Observable, {
+  /**
+   * @cfg {Number} threshold This number specifies the amount of force needed to trigger a tab change.
+   */
+  threshold: 10,
+  /**
+   * @cfg {Number} buffer The number of milliseconds to wait after a motion event has been triggered before triggering the next. 
+   */
+  buffer: 1000,
+  /**
+   * @cfg {Number} pollmod The modulus of how often to inspect motion data to determine if a shake happened. 
+   */
+  pollmod: 10,
   // private
   flicked: false,
+  //private
   dmcnt: 0,
+  constructor: function(config){
+	Ext.apply(this, config || {});
+  },
   init: function(cmp){
-	var me = this;
     this.cmp = cmp;
     this.setFn = (Ext.versionDetail.major === 0) ? 'Card' : 'ActiveItem'; 
     cmp.on('render', this.initAccelerometerHandlers, this);
@@ -26,20 +41,21 @@ Ext.ux.touch.AccelerometerTabs = Ext.extend(Ext.util.Observable, {
   },
   // private
   deviceMotion: function(event) {
-  	if (this.dmcnt % 10 && event.acceleration){
-        if ((event.acceleration.x > 10 || event.acceleration.x < -10) && !this.flicked){
+  	if (this.dmcnt % this.pollmod && event.acceleration){
+  		var orientation = (Ext.Viewport.getOrientation() == 'landscape')?'y':'x';
+        if (!this.flicked && (event.acceleration[orientation] > this.threshold || event.acceleration[orientation] < (this.threshold*-1))){
           this.flicked = true;
           var ev = {
         	type: 'flick',
-        	direction: (event.acceleration.x < -10)?'left':'right'
+        	direction: (event.acceleration[orientation] < (this.threshold*-1))?'left':'right'
           };
           this.cmp.getActiveItem().fireEvent('devicemotion',ev);
-          setTimeout(function(){
+          setTimeout(Ext.createDelegate(function(){
             this.flicked = false;
-          },1000);
+          },this),this.buffer);
         }
     }
-	me.dmcnt++;
+	this.dmcnt++;
   },
   // private
   initAccelerometerHandlers: function(){
@@ -69,7 +85,6 @@ Ext.ux.touch.AccelerometerTabs = Ext.extend(Ext.util.Observable, {
   // private
   addAccelerometerLeft: function(itm, i){
     itm.on('devicemotion', function(ev) {
-    	console.log('devicemotion:'+ev.type+':'+ev.direction);
       if (ev.type == "flick" && ev.direction == "left") {
         this.cmp['set'+this.setFn](i + 1);
       }
@@ -78,7 +93,6 @@ Ext.ux.touch.AccelerometerTabs = Ext.extend(Ext.util.Observable, {
   // private
   addAccelerometerRight: function(itm, i){
     itm.on('devicemotion', function(ev) {
-    	console.log('devicemotion:'+ev.type+':'+ev.direction);
       if (ev.type == "flick" && ev.direction == "right") {
         this.cmp['set'+this.setFn](i - 1, {type : 'slide', direction : 'right'});
       }
